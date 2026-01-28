@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Section, Language, Question, SurveyResponse } from '../types';
 import { QUESTIONS, MALE_ICON, FEMALE_ICON } from '../constants';
@@ -197,7 +196,7 @@ const QuestionnaireFlow: React.FC<QuestionnaireFlowProps> = ({ onComplete, onExi
 
       {showThankYou && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-emerald-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white rounded-3xl p-8 max-sm w-full text-center shadow-2xl space-y-6 animate-in zoom-in slide-in-from-bottom-8 duration-500">
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl space-y-6 animate-in zoom-in slide-in-from-bottom-8 duration-500">
             <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-4xl">
               ✅
             </div>

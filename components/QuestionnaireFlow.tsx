@@ -1,6 +1,7 @@
+
 import React, { useState, useMemo } from 'react';
 import { Section, Language, Question, SurveyResponse } from '../types';
-import { QUESTIONS, MALE_ICON, FEMALE_ICON } from '../constants';
+import { QUESTIONS, MALE_ICON, FEMALE_ICON, DISTRICT_LOGOS } from '../constants';
 import { firebaseService } from '../services/firebaseService';
 
 interface QuestionnaireFlowProps {
@@ -15,6 +16,9 @@ const QuestionnaireFlow: React.FC<QuestionnaireFlowProps> = ({ onComplete, onExi
   const [showThankYou, setShowThankYou] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
 
+  // Sub-state for location step
+  const [locationDistrict, setLocationDistrict] = useState<'Chivi' | 'Zvishavane' | null>(null);
+
   const activeQuestions = useMemo(() => {
     return QUESTIONS.filter(q => !q.condition || q.condition(answers));
   }, [answers]);
@@ -23,6 +27,12 @@ const QuestionnaireFlow: React.FC<QuestionnaireFlowProps> = ({ onComplete, onExi
   const progress = Math.round((currentIndex / activeQuestions.length) * 100);
 
   const handleNext = async () => {
+    // Validation for location
+    if (currentQuestion.id === 'ward_location' && !answers['ward_location']) {
+      alert("Please select both a District and a Ward before proceeding.");
+      return;
+    }
+
     if (currentIndex < activeQuestions.length - 1) {
       setCurrentIndex(prev => prev + 1);
     } else {
@@ -68,6 +78,82 @@ const QuestionnaireFlow: React.FC<QuestionnaireFlowProps> = ({ onComplete, onExi
 
   const renderInput = (q: Question) => {
     const val = answers[q.id] || '';
+
+    // SPECIAL CASE: WARD LOCATION
+    if (q.id === 'ward_location') {
+      const chiviWards = ['16', '18'];
+      const zvishWards = ['4', '9'];
+      const selectedWard = val ? val.split(' - Ward ')[1] : null;
+
+      return (
+        <div className="space-y-8 animate-in fade-in duration-500 max-w-2xl mx-auto">
+          {!locationDistrict ? (
+            <div className="space-y-4">
+              <p className="text-stone-400 font-black text-[10px] uppercase tracking-[0.2em] text-center">Step 1: Select District</p>
+              <div className="grid grid-cols-2 gap-4">
+                <button 
+                  onClick={() => setLocationDistrict('Chivi')}
+                  className="bg-white border-2 border-stone-100 hover:border-emerald-600 rounded-3xl p-6 transition-all group flex flex-col items-center gap-4 shadow-sm hover:shadow-xl"
+                >
+                  <img src={DISTRICT_LOGOS.CHIVI} alt="Chivi" className="w-24 h-24 object-contain rounded-xl" />
+                  <span className="font-black text-emerald-900 uppercase tracking-widest text-sm group-hover:scale-110 transition-transform">Chivi</span>
+                </button>
+                <button 
+                  onClick={() => setLocationDistrict('Zvishavane')}
+                  className="bg-white border-2 border-stone-100 hover:border-emerald-600 rounded-3xl p-6 transition-all group flex flex-col items-center gap-4 shadow-sm hover:shadow-xl"
+                >
+                  <img src={DISTRICT_LOGOS.ZVISHAVANE} alt="Zvishavane" className="w-24 h-24 object-contain rounded-xl" />
+                  <span className="font-black text-emerald-900 uppercase tracking-widest text-sm group-hover:scale-110 transition-transform">Zvishavane</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between border-b border-stone-100 pb-4">
+                <div className="flex items-center gap-3">
+                  <img 
+                    src={locationDistrict === 'Chivi' ? DISTRICT_LOGOS.CHIVI : DISTRICT_LOGOS.ZVISHAVANE} 
+                    className="w-10 h-10 object-contain rounded-lg bg-stone-50"
+                  />
+                  <div>
+                    <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest leading-none">Selected District</p>
+                    <p className="font-black text-emerald-900 text-lg">{locationDistrict}</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => { setLocationDistrict(null); updateAnswer(q.id, ''); }}
+                  className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full hover:bg-emerald-100 transition-colors uppercase tracking-widest"
+                >
+                  Change District
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <p className="text-stone-400 font-black text-[10px] uppercase tracking-[0.2em] text-center">Step 2: Select Ward</p>
+                <div className="grid grid-cols-2 gap-4">
+                  {(locationDistrict === 'Chivi' ? chiviWards : zvishWards).map(w => (
+                    <button
+                      key={w}
+                      onClick={() => updateAnswer(q.id, `${locationDistrict} - Ward ${w}`)}
+                      className={`py-6 rounded-2xl font-black text-xl transition-all border-2 ${selectedWard === w ? 'bg-emerald-700 text-white border-emerald-800 shadow-lg scale-105' : 'bg-white text-stone-500 border-stone-100 hover:border-emerald-300'}`}
+                    >
+                      Ward {w}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {val && (
+                <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 text-center animate-in zoom-in duration-300">
+                  <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Final Selection</p>
+                  <p className="font-black text-emerald-900">{val}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    }
 
     switch (q.type) {
       case 'info':

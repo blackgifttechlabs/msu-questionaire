@@ -5,6 +5,11 @@ export const LOGO_URL = "https://i.ibb.co/nNzB12S4/msu-Picsart-Ai-Image-Enhancer
 export const MALE_ICON = "https://cdn-icons-png.flaticon.com/512/4140/4140048.png";
 export const FEMALE_ICON = "https://cdn-icons-png.flaticon.com/512/4140/4140047.png";
 
+export const DISTRICT_LOGOS = {
+  CHIVI: "https://i.ibb.co/XZg45Whb/chivi.webp",
+  ZVISHAVANE: "https://i.ibb.co/gZv34nFJ/zvish.webp"
+};
+
 const fallback = (text: string) => ({
   [Language.ENGLISH]: text
 });
@@ -20,8 +25,8 @@ export const QUESTIONS: Question[] = [
   {
     id: 'ward_location',
     section: Section.INTRO,
-    label: fallback("What is your Location (Ward)?"),
-    type: 'text'
+    label: fallback("Select the District and Ward location of the respondent."),
+    type: 'text' // We will override the UI for this specific ID in QuestionnaireFlow
   },
 
   // PART A: PROFILE

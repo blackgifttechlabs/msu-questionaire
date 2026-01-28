@@ -1,0 +1,7 @@
+{
+  "name": "MSU Questionnaire for Farmers",
+  "description": "A comprehensive data collection tool for Zimbabwean farmers, featuring interactive step-by-step surveys and an advanced admin analytics dashboard.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
